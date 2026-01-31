@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukhariya Fest Pro Scoreboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@700;800&family=Poppins:wght@400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --gold: #ffcc00; --silver: #e2e8f0; --bronze: #cd7f32; --accent: #00d2ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Poppins', sans-serif; color: white; overflow: hidden;
+            background: radial-gradient(circle, #1e1b4b, #020617);
+        }
+
+        /* Animated Backgrounds */
+        .bg-style-1 { background: radial-gradient(circle, #1e1b4b, #020617); }
+        .bg-style-2 { background: linear-gradient(135deg, #0f172a, #1e293b); }
+        .bg-style-3 { background: radial-gradient(circle at top right, #312e81, #020617); }
+
+        /* Header */
+        .header {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 10px; background: rgba(0,0,0,0.8); border-bottom: 3px solid var(--gold);
+        }
+
+        #main-title {
+            font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 7vw, 4rem); 
+            margin: 0; text-align: center;
+            background: linear-gradient(to right, #fff, var(--gold), #fff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: textShine 3s infinite linear;
+        }
+
+        @keyframes textShine { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+
+        .live-box {
+            background: #ff0000; color: white; padding: 2px 15px; border-radius: 50px;
+            font-weight: 900; font-size: 0.8rem; animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        /* Main Result Area */
+        #display-area { height: 45vh; display: flex; align-items: center; justify-content: center; padding: 10px; }
+
+        .slide {
+            width: 95%; max-width: 800px; background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px); border-radius: 20px; padding: 20px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); animation: zoomIn 0.5s ease-out;
+        }
+
+        .winner-tag { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); animation: glowText 1s infinite alternate; }
+        @keyframes glowText { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
+
+        .trophy { font-size: clamp(3rem, 10vw, 4.5rem); margin-bottom: 5px; display: block; }
+        .p-name { font-size: clamp(1.8rem, 6vw, 3.2rem); font-weight: 900; margin: 5px 0; color: #fff; line-height: 1.1; }
+        .e-info { font-size: 0.9rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+        .t-tag { font-family: 'Anek Malayalam', sans-serif; font-size: 1.2rem; background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 50px; display: inline-block; margin: 10px 0; }
+
+        /* Equal Team Boxes Layout */
+        .team-section {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 800px;
+            position: absolute;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 15px;
+        }
+
+        .team-card {
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            text-align: center;
+            flex: 1; /* Ensures both boxes are the same width */
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .leader-box {
+            border-color: var(--gold);
+            background: rgba(251, 191, 36, 0.15);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .team-label { font-family: 'Anek Malayalam', sans-serif; font-size: 1.3rem; margin-bottom: 2px; }
+        .team-score { font-size: 2.5rem; font-weight: 900; line-height: 1; }
+
+        .leader-text {
+            color: var(--gold);
+            animation: leaderShine 1.5s infinite alternate;
+        }
+
+        @keyframes leaderShine { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+        /* Footer */
+        .agency-footer {
+            position: absolute; bottom: 0; width: 100%; height: 65px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc);
+            background-size: 400% 400%; animation: grad 8s infinite linear;
+            font-weight: 700; font-size: 0.9rem; text-align: center;
+        }
+        @keyframes grad { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        @media (max-width: 600px) {
+            #display-area { height: 40vh; }
+            .team-section { bottom: 75px; gap: 10px; width: 95%; }
+            .team-score { font-size: 1.8rem; }
+            .team-label { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body class="bg-style-1" id="main-body">
+
+<div class="header">
+    <h1 id="main-title">BUKHARIYA ARTS FEST</h1>
+    <div class="live-box">LIVE UPDATING</div>
+</div>
+
+<div id="display-area"></div>
+
+<div class="team-section">
+    <div class="team-card" id="card-t1">
+        <div class="team-label" id="t1-name">ടീം 1</div>
+        <div class="team-score" id="t1-val">0</div>
+    </div>
+    <div class="team-card" id="card-t2">
+        <div class="team-label" id="t2-name">ടീം 2</div>
+        <div class="team-score" id="t2-val">0</div>
+    </div>
+</div>
+
+<div class="agency-footer">
+    <div>Powered by Jamal Digital Marketing Agency</div>
+    <div style="font-size: 0.7rem; opacity: 0.9;">Contact: +91 9995446354</div>
+</div>
+
+<script>
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ56O5aSnw7A1i-9sD2blisxpJI3OHDoZjBhDNUehlwQMHmISN9gH5e4eBNBgnIm5FU4JvHEjgZUUb8/pub?gid=0&single=true&output=tsv';
+    let allResults = [], currentIndex = 0, bgIndex = 1, currentLeader = 0;
+
+    async function fetchData() {
+        try {
+            const response = await fetch(tsvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1);
+            let t1 = 0, t2 = 0, names = [];
+            allResults = [];
+
+            rows.forEach(row => {
+                const col = row.split('\t');
+                if (col.length < 5) return;
+                const team = col[2].trim(), score = parseInt(col[4]) || 0;
+                if (!names.includes(team)) names.push(team);
+                if (team === names[0]) t1 += score; else t2 += score;
+                allResults.push({ event: col[0], name: col[1], team: team, cat: col[3], score: col[4], rank: col[5]?.trim() });
+            });
+
+            document.getElementById('t1-name').innerText = names[0] || "Team A";
+            document.getElementById('t2-name').innerText = names[1] || "Team B";
+            document.getElementById('t1-val').innerText = t1;
+            document.getElementById('t2-val').innerText = t2;
+
+            const c1 = document.getElementById('card-t1'), c2 = document.getElementById('card-t2');
+            const n1 = document.getElementById('t1-name'), v1 = document.getElementById('t1-val');
+            const n2 = document.getElementById('t2-name'), v2 = document.getElementById('t2-val');
+
+            c1.classList.remove('leader-box'); c2.classList.remove('leader-box');
+            n1.classList.remove('leader-text'); v1.classList.remove('leader-text');
+            n2.classList.remove('leader-text'); v2.classList.remove('leader-text');
+
+            if (t1 > t2) {
+                c1.classList.add('leader-box'); n1.classList.add('leader-text'); v1.classList.add('leader-text');
+                currentLeader = 1;
+            } else if (t2 > t1) {
+                c2.classList.add('leader-box'); n2.classList.add('leader-text'); v2.classList.add('leader-text');
+                currentLeader = 2;
+            } else { currentLeader = 0; }
+        } catch (e) { console.log(e); }
+    }
+
+    // Continuous Celebration for Leader
+    setInterval(() => {
+        if (currentLeader === 1) burst(0.25);
+        else if (currentLeader === 2) burst(0.75);
+    }, 1000);
+
+    function burst(x) {
+        confetti({ particleCount: 7, angle: 90, spread: 40, origin: { x: x, y: 0.85 }, colors: ['#ffcc00', '#ffffff', '#00d2ff'] });
+    }
+
+    function rotateSlide() {
+        if (!allResults.length) return;
+        const d = allResults[currentIndex];
+        const area = document.getElementById('display-area');
+        const isWinner = d.rank === '1';
+        let trophy = isWinner ? '🏆' : (d.rank === '2' ? '🥈' : (d.rank === '3' ? '🥉' : '🏅'));
+
+        area.innerHTML = `
+            <div class="slide">
+                ${isWinner ? '<div class="winner-tag">★ WINNER ★</div>' : ''}
+                <span class="trophy">${trophy}</span>
+                <div class="e-info">${d.event} | ${d.cat}</div>
+                <h2 class="p-name">${d.name}</h2>
+                <div class="t-tag">${d.team}</div>
+                <div style="font-size:1.1rem; font-weight:800; color:var(--gold);">RANK: ${d.rank} | POINTS: ${d.score}</div>
+            </div>
+        `;
+
+        if (isWinner) confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        currentIndex = (currentIndex + 1) % allResults.length;
+    }
+
+    fetchData();
+    setInterval(fetchData, 15000);
+    setInterval(rotateSlide, 5000);
+    setInterval(() => { document.getElementById('main-body').className = 'bg-style-' + (bgIndex = bgIndex % 3 + 1); }, 5000);
+</script>
+</body>
+</html>
